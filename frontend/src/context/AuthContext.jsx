@@ -34,7 +34,11 @@ export const AuthProvider = ({ children }) => {
             return { success: true, user };
         } catch (error) {
             console.error("Login failed", error);
-            return { success: false, error: error.response?.data?.non_field_errors?.[0] || 'Login failed' };
+            const errorMsg = error.response?.data?.non_field_errors?.[0] ||
+                error.response?.data?.detail ||
+                error.message ||
+                'Login failed (Network Error)';
+            return { success: false, error: errorMsg };
         }
     };
 
@@ -48,7 +52,8 @@ export const AuthProvider = ({ children }) => {
             return { success: true, user };
         } catch (error) {
             console.error("Registration failed", error);
-            return { success: false, error: error.response?.data };
+            const errorData = error.response?.data || error.message || 'Registration failed (Network Error)';
+            return { success: false, error: errorData };
         }
     };
 
