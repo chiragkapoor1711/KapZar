@@ -1,7 +1,7 @@
-from django.shortcuts import render
+from django.http import HttpResponse
 
 # Only keeping a placeholder home view if needed, but primarily serving API now.
-# Real usage is in api_views.py
+# Real usage is in shop/endpoints.py
 
 def home(request):
-    return render(request, "index.html") # This would be if serving React build, but we are separate.
+    return HttpResponse("KapZar Grocery API is live!")
