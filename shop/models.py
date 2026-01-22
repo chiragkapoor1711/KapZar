@@ -37,7 +37,8 @@ class OrderItem(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
-    image_url = models.URLField(blank=True, null=True)   # 👈 category image
+    image_url = models.URLField(blank=True, null=True)   # Keep for backward compatibility
+    image = models.ImageField(upload_to='categories/', blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -50,7 +51,8 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     stock = models.PositiveIntegerField(default=0)
-    image_url = models.URLField(blank=True, null=True)   # 👈 URLField instead of ImageField
+    image_url = models.URLField(blank=True, null=True)
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
     available = models.BooleanField(default=True)
 
     def __str__(self):

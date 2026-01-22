@@ -6,21 +6,22 @@ import api from '../api';
 const AdminDashboard = () => {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('view_products'); // view_products | product | category
+    const [activeTab, setActiveTab] = useState('view_products'); // view_products | view_categories | product | category
 
     // Data States
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
 
-    // Product Form
+    // Form States
     const [prodData, setProdData] = useState({
         name: '', description: '', price: '', stock: '', category: '', image_url: '', available: true
     });
+    const [prodFile, setProdFile] = useState(null);
 
-    // Category Form
     const [catData, setCatData] = useState({
         name: '', slug: '', image_url: ''
     });
+    const [catFile, setCatFile] = useState(null);
 
     const [msg, setMsg] = useState({ type: '', text: '' });
 
@@ -57,11 +58,19 @@ const AdminDashboard = () => {
     const createProduct = async (e) => {
         e.preventDefault();
         setMsg({ type: '', text: '' });
+
+        const formData = new FormData();
+        Object.keys(prodData).forEach(key => formData.append(key, prodData[key]));
+        if (prodFile) formData.append('image', prodFile);
+
         try {
-            await api.post('products/create/', prodData);
+            await api.post('products/create/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             setMsg({ type: 'success', text: 'Product added successfully!' });
             setProdData({ name: '', description: '', price: '', stock: '', category: '', image_url: '', available: true });
-            fetchProducts(); // Refresh list
+            setProdFile(null);
+            fetchProducts();
         } catch (err) {
             setMsg({ type: 'error', text: 'Failed to add product.' });
         }
@@ -70,10 +79,18 @@ const AdminDashboard = () => {
     const createCategory = async (e) => {
         e.preventDefault();
         setMsg({ type: '', text: '' });
+
+        const formData = new FormData();
+        Object.keys(catData).forEach(key => formData.append(key, catData[key]));
+        if (catFile) formData.append('image', catFile);
+
         try {
-            await api.post('categories/create/', catData);
+            await api.post('categories/create/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             setMsg({ type: 'success', text: 'Category added successfully!' });
             setCatData({ name: '', slug: '', image_url: '' });
+            setCatFile(null);
             fetchCats();
         } catch (err) {
             setMsg({ type: 'error', text: 'Failed to add category.' });
@@ -102,6 +119,11 @@ const AdminDashboard = () => {
         }
     };
 
+    const getImageUrl = (item) => {
+        if (item.image) return item.image; // Check for uploaded file URL first
+        return item.image_url || 'https://via.placeholder.com/150?text=No+Image';
+    };
+
     if (loading) return <div>Loading...</div>;
 
     return (
@@ -109,30 +131,15 @@ const AdminDashboard = () => {
             <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
                 <div className="flex space-x-2 overflow-x-auto pb-2">
-                    <button
-                        onClick={() => setActiveTab('view_products')}
-                        className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${activeTab === 'view_products' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
-                    >
-                        View Products
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('view_categories')}
-                        className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${activeTab === 'view_categories' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
-                    >
-                        View Categories
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('product')}
-                        className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${activeTab === 'product' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
-                    >
-                        Add Product
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('category')}
-                        className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${activeTab === 'category' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
-                    >
-                        Add Category
-                    </button>
+                    {['view_products', 'view_categories', 'product', 'category'].map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`px-4 py-2 rounded-lg font-medium transition whitespace-nowrap ${activeTab === tab ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
+                        >
+                            {tab.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                        </button>
+                    ))}
                 </div>
             </div>
 
@@ -161,18 +168,13 @@ const AdminDashboard = () => {
                                     {products.map(p => (
                                         <tr key={p.id} className="border-b hover:bg-gray-50">
                                             <td className="p-3">
-                                                <img src={p.image_url || 'https://via.placeholder.com/50'} alt={p.name} className="w-12 h-12 object-cover rounded" />
+                                                <img src={getImageUrl(p)} alt={p.name} className="w-12 h-12 object-cover rounded" />
                                             </td>
                                             <td className="p-3 font-medium">{p.name}</td>
                                             <td className="p-3">₹{p.price}</td>
                                             <td className="p-3">{p.stock}</td>
                                             <td className="p-3">
-                                                <button
-                                                    onClick={() => deleteProduct(p.id)}
-                                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                                                >
-                                                    Delete
-                                                </button>
+                                                <button onClick={() => deleteProduct(p.id)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">Delete</button>
                                             </td>
                                         </tr>
                                     ))}
@@ -200,17 +202,12 @@ const AdminDashboard = () => {
                                     {categories.map(c => (
                                         <tr key={c.id} className="border-b hover:bg-gray-50">
                                             <td className="p-3">
-                                                <img src={c.image_url || 'https://via.placeholder.com/50'} alt={c.name} className="w-12 h-12 object-cover rounded" />
+                                                <img src={getImageUrl(c)} alt={c.name} className="w-12 h-12 object-cover rounded" />
                                             </td>
                                             <td className="p-3 font-medium">{c.name}</td>
                                             <td className="p-3 text-gray-500">{c.slug}</td>
                                             <td className="p-3">
-                                                <button
-                                                    onClick={() => deleteCategory(c.id)}
-                                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
-                                                >
-                                                    Delete
-                                                </button>
+                                                <button onClick={() => deleteCategory(c.id)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">Delete</button>
                                             </td>
                                         </tr>
                                     ))}
@@ -236,7 +233,23 @@ const AdminDashboard = () => {
                             <input name="stock" type="number" placeholder="Stock Quantity" value={prodData.stock} onChange={handleProdChange} className="w-full border p-2 rounded" required />
                         </div>
                         <textarea name="description" placeholder="Description" value={prodData.description} onChange={handleProdChange} className="w-full border p-2 rounded" rows="3" />
-                        <input name="image_url" placeholder="Image URL" value={prodData.image_url} onChange={handleProdChange} className="w-full border p-2 rounded" />
+
+                        <div className="border-2 border-dashed border-gray-200 p-4 rounded-xl">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+                            <div className="flex flex-col md:flex-row gap-4 items-start">
+                                <div className="flex-1 w-full">
+                                    <input name="image_url" placeholder="Paste Image URL" value={prodData.image_url} onChange={handleProdChange} className="w-full border p-2 rounded mb-2" />
+                                    <div className="text-center text-gray-400 text-xs my-1">-- OR --</div>
+                                    <input type="file" accept="image/*" onChange={(e) => setProdFile(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-emerald-600" />
+                                </div>
+                                {(prodFile || prodData.image_url) && (
+                                    <div className="w-24 h-24 border rounded overflow-hidden flex-shrink-0">
+                                        <img src={prodFile ? URL.createObjectURL(prodFile) : prodData.image_url} className="w-full h-full object-cover" alt="Preview" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         <button type="submit" className="w-full bg-primary text-white px-6 py-2 rounded hover:bg-emerald-600 font-bold">Save Product</button>
                     </form>
                 )}
@@ -246,7 +259,21 @@ const AdminDashboard = () => {
                         <h2 className="text-xl font-semibold mb-4">Add New Category</h2>
                         <input name="name" placeholder="Category Name" value={catData.name} onChange={handleCatChange} className="w-full border p-2 rounded" required />
                         <input name="slug" placeholder="Slug (unique-id, e.g. 'vegetables')" value={catData.slug} onChange={handleCatChange} className="w-full border p-2 rounded" required />
-                        <input name="image_url" placeholder="Image URL" value={catData.image_url} onChange={handleCatChange} className="w-full border p-2 rounded" />
+
+                        <div className="border-2 border-dashed border-gray-200 p-4 rounded-xl">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
+                            <div className="flex flex-col gap-4">
+                                <input name="image_url" placeholder="Paste Image URL" value={catData.image_url} onChange={handleCatChange} className="w-full border p-2 rounded" />
+                                <div className="text-center text-gray-400 text-xs">-- OR --</div>
+                                <input type="file" accept="image/*" onChange={(e) => setCatFile(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-emerald-600" />
+                                {(catFile || catData.image_url) && (
+                                    <div className="w-full h-32 border rounded overflow-hidden">
+                                        <img src={catFile ? URL.createObjectURL(catFile) : catData.image_url} className="w-full h-full object-contain" alt="Preview" />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         <button type="submit" className="w-full bg-primary text-white px-6 py-2 rounded hover:bg-emerald-600 font-bold">Save Category</button>
                     </form>
                 )}

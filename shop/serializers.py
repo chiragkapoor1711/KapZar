@@ -27,7 +27,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'name', 'slug', 'image_url']
+        fields = ['id', 'name', 'slug', 'image_url', 'image']
 
 class ProductSerializer(serializers.ModelSerializer):
     category_slug = serializers.CharField(source='category.slug', read_only=True)
@@ -35,7 +35,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'category', 'category_slug', 'name', 'slug', 'description', 
-                  'price', 'stock', 'image_url', 'available']
+                  'price', 'stock', 'image_url', 'image', 'available']
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:

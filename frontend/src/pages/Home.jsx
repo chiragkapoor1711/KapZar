@@ -23,12 +23,26 @@ const Home = () => {
     return (
         <div className="space-y-12">
             {/* Hero Section */}
-            <div className="bg-primary rounded-2xl p-8 md:p-12 text-center text-white shadow-lg">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">Welcome To KAPZAR</h1>
-                <p className="text-lg md:text-xl mb-8 opacity-90">Shop from our wide range of fresh vegetables, fruits, and daily essentials.</p>
-                <Link to="/products" className="bg-white text-primary px-8 py-3 rounded-full font-bold text-lg hover:bg-gray-100 transition shadow-md">
-                    Shop Now
-                </Link>
+            <div className="relative rounded-2xl overflow-hidden shadow-lg h-[400px] flex items-center justify-center">
+                {/* Background Image with Blur */}
+                <div
+                    className="absolute inset-0 bg-cover bg-center transition-all duration-500"
+                    style={{
+                        backgroundImage: "url('/hero-bg.png')",
+                        filter: 'blur(4px) brightness(0.7)'
+                    }}
+                ></div>
+
+                {/* Content on top */}
+                <div className="relative z-10 text-center text-white px-4 md:px-12">
+                    <h1 className="text-4xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">Welcome To KAPZAR</h1>
+                    <p className="text-lg md:text-2xl mb-8 opacity-95 max-w-2xl mx-auto drop-shadow-md font-medium">
+                        Shop from our wide range of fresh vegetables, fruits, and daily essentials delivered to your doorstep.
+                    </p>
+                    <Link to="/products" className="bg-primary text-white border-2 border-white px-10 py-4 rounded-full font-extrabold text-xl hover:bg-white hover:text-primary transition-all duration-300 shadow-xl inline-block hover:scale-105 active:scale-95">
+                        Shop Now
+                    </Link>
+                </div>
             </div>
 
             {/* Categories */}
