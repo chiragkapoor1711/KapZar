@@ -8,6 +8,9 @@ const api = axios.create({
 });
 
 console.log("API Base URL:", api.defaults.baseURL);
+if (!import.meta.env.VITE_API_URL) {
+    console.warn("VITE_API_URL is NOT set! Using default: http://127.0.0.1:8000/api/");
+}
 
 // Add a request interceptor to add the auth token
 api.interceptors.request.use(
