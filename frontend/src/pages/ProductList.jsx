@@ -10,7 +10,13 @@ const ProductList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const categoryFilter = searchParams.get('category');
-    const [searchTerm, setSearchTerm] = useState('');
+    const qParam = searchParams.get('q') || '';
+    const [searchTerm, setSearchTerm] = useState(qParam);
+
+    // Sync local search term with URL param
+    useEffect(() => {
+        setSearchTerm(qParam);
+    }, [qParam]);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -19,7 +25,7 @@ const ProductList = () => {
                 let url = 'products/';
                 const params = [];
                 if (categoryFilter) params.push(`category=${categoryFilter}`);
-                if (searchTerm) params.push(`q=${searchTerm}`); // Currently API handles q param
+                if (searchTerm) params.push(`q=${searchTerm}`);
 
                 if (params.length > 0) url += `?${params.join('&')}`;
 
@@ -32,7 +38,6 @@ const ProductList = () => {
             }
         };
 
-        // Debounce search
         const timeoutId = setTimeout(() => {
             fetchProducts();
         }, 300);

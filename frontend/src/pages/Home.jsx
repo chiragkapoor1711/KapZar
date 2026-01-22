@@ -62,9 +62,9 @@ const Home = () => {
                                 key={cat.id}
                                 className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition aspect-video bg-white"
                             >
-                                {cat.image_url ? (
+                                {cat.image || cat.image_url ? (
                                     <img
-                                        src={cat.image_url}
+                                        src={cat.image || cat.image_url}
                                         alt={cat.name}
                                         className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                                     />

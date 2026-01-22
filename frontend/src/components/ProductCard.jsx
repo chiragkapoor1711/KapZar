@@ -8,9 +8,9 @@ const ProductCard = ({ product }) => {
     return (
         <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden border border-gray-100 flex flex-col">
             <div className="relative h-36 md:h-48 w-full bg-gray-100">
-                {product.image_url ? (
+                {product.image || product.image_url ? (
                     <img
-                        src={product.image_url}
+                        src={product.image || product.image_url}
                         alt={product.name}
                         className="w-full h-full object-cover"
                     />

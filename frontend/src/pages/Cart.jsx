@@ -33,7 +33,7 @@ const Cart = () => {
                         <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden shrink-0">
-                                    {item.image_url && <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />}
+                                    {(item.image || item.image_url) && <img src={item.image || item.image_url} alt={item.name} className="w-full h-full object-cover" />}
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-gray-900">{item.name}</h3>
